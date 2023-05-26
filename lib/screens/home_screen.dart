@@ -1,7 +1,9 @@
 import 'dart:math';
+import 'package:chat_app/resources/socket_io_config.dart';
 import 'package:chat_app/screens/room_screen.dart';
 import 'package:chat_app/util/colors.dart';
 import 'package:chat_app/widgets/custom_text_field.dart';
+import 'package:chat_app/widgets/room_card.dart';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
@@ -61,38 +63,35 @@ class _HomeScreenState extends State<HomeScreen> {
               ? const Center(
                   child: Text('No join room'),
                 )
-              : Expanded(
-                  child: ListView.builder(
-                    itemCount: joinedRooms.length,
-                    itemBuilder: (context, index) {
-                      return Card(
-                        key: ValueKey(joinedRooms[index]),
-                        child: ListTile(
-                          onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (_) => RoomScreen(
-                                      joinedRooms[index], leaveRoom))),
-                          title: Text(
-                            "Room ID: #${joinedRooms[index]}",
-                            style: TextStyle(
-                              fontSize: 16.5,
-                              color: colorScheme.primary,
-                            ),
-                          ),
-                          trailing: IconButton(
-                            onPressed: () {
-                              leaveRoom(joinedRooms[index]);
-                            },
-                            icon: Icon(
-                              Icons.logout,
-                              color: colorScheme.error,
-                            ),
-                          ),
+              : StreamBuilder(
+                  stream: streamSocket.getResponse,
+                  builder: (context, AsyncSnapshot<String> snapshot) {
+                    if (snapshot.hasError) {
+                      return const Center(
+                        child: Text("Some error occured in stream"),
+                      );
+                    } else if (snapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
                         ),
                       );
-                    },
-                  ),
-                ),
+                    }
+
+                    return Expanded(
+                        child: ListView.builder(
+                      itemCount: joinedRooms.length,
+                      itemBuilder: (context, index) {
+                        return RoomCard(
+                          snapshot: snapshot.data.toString(),
+                          roomId: joinedRooms[index],
+                          leaveRoom: leaveRoom,
+                        );
+                      },
+                    ));
+                  },
+                )
         ],
       ),
     );

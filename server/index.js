@@ -21,7 +21,7 @@ io.on('connection', (socket) => {
   socket.on("create-room", (roomid) => {
     console.log("Joined Room : " + roomid);
     socket.join(roomid);
-    rooms.push(roomid);
+    // rooms.push(roomid);qn
   });
 
   // leave room
