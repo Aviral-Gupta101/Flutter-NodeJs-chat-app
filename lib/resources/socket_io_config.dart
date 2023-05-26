@@ -6,9 +6,9 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 class StreamSocket {
   final _socketResponse = StreamController<String>();
 
-  void Function(String) get addResponse => _socketResponse.sink.add;
+  void Function(dynamic) get addResponse => _socketResponse.sink.add as dynamic;
 
-  Stream<String> get getResponse => _socketResponse.stream;
+  Stream<dynamic> get getResponse => _socketResponse.stream;
 
   void dispose() {
     _socketResponse.close();
@@ -28,10 +28,18 @@ Socket connectAndListen() {
   });
 
   //When an event recieved from server, data is added to the stream
-  socket.on('greeting-from-node', (data) {
+  socket.on('connected', (data) {
     print(data);
     streamSocket.addResponse(data);
   });
+
+  socket.on("recieve-msg", (data) {
+    print("here");
+    // print(data);
+    print(data[1]);
+    streamSocket.addResponse(data[1]);
+  });
+
   socket.onDisconnect((_) => print("Disconnected"));
   return socket;
 }

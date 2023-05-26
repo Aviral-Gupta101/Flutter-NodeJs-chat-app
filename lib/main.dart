@@ -1,4 +1,5 @@
 import 'package:chat_app/resources/socket_io_config.dart';
+import 'package:chat_app/resources/socket_methods.dart';
 import 'package:chat_app/screens/home_screen.dart';
 import 'package:chat_app/screens/room_screen.dart';
 import 'package:chat_app/util/colors.dart';
@@ -21,7 +22,8 @@ class _MainAppState extends State<MainApp> {
   @override
   void initState() {
     super.initState();
-    socket = connectAndListen();
+    SocketMethods.socket = connectAndListen();
+    socket = SocketMethods.socket!;
   }
 
   @override
@@ -38,7 +40,7 @@ class _MainAppState extends State<MainApp> {
         useMaterial3: true,
         colorScheme: colorScheme,
       ),
-      home: HomeScreen(socket),
+      home: const HomeScreen(),
       // home: RoomScreen(),
     );
   }

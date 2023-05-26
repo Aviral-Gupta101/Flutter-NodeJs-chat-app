@@ -1,5 +1,5 @@
+import 'package:chat_app/resources/socket_methods.dart';
 import 'package:chat_app/util/colors.dart';
-import 'package:chat_app/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 
 class RoomScreen extends StatefulWidget {
@@ -69,7 +69,11 @@ class _RoomScreenState extends State<RoomScreen> {
                 border: InputBorder.none,
                 hintText: "Enter a message...",
                 suffixIcon: IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    SocketMethods()
+                        .sendMessage(widget.roomId, _controller.text);
+                    _controller.clear();
+                  },
                   icon: const Icon(Icons.send),
                 ),
               ),

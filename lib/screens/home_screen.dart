@@ -1,15 +1,13 @@
 import 'dart:math';
 import 'package:chat_app/resources/socket_io_config.dart';
-import 'package:chat_app/screens/room_screen.dart';
-import 'package:chat_app/util/colors.dart';
+import 'package:chat_app/resources/socket_methods.dart';
 import 'package:chat_app/widgets/custom_text_field.dart';
 import 'package:chat_app/widgets/room_card.dart';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class HomeScreen extends StatefulWidget {
-  final IO.Socket socket;
-  const HomeScreen(this.socket, {super.key});
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -17,6 +15,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _joinRoomController = TextEditingController();
+  final IO.Socket socket = SocketMethods.socket!;
   List joinedRooms = [];
 
   void createRoom() {
@@ -28,11 +27,11 @@ class _HomeScreenState extends State<HomeScreen> {
       _joinRoomController.text = id;
       joinedRooms.add(id);
     });
-    widget.socket.emit("create-room", id);
+    socket.emit("create-room", id);
   }
 
   void leaveRoom(String id) {
-    widget.socket.emit("leave-room", id);
+    socket.emit("leave-room", id);
     setState(() {
       joinedRooms.remove(id);
     });
@@ -65,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 )
               : StreamBuilder(
                   stream: streamSocket.getResponse,
-                  builder: (context, AsyncSnapshot<String> snapshot) {
+                  builder: (context, AsyncSnapshot<dynamic> snapshot) {
                     if (snapshot.hasError) {
                       return const Center(
                         child: Text("Some error occured in stream"),
@@ -78,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       );
                     }
-
+                    print("Snapshot: ${snapshot.data}");
                     return Expanded(
                         child: ListView.builder(
                       itemCount: joinedRooms.length,

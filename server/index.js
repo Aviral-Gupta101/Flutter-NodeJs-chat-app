@@ -15,7 +15,14 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
   console.log('a user connected to NodeJs');
-  socket.emit("greeting-from-node", "Hello Flutter");
+  socket.emit("connected", "Connection Successful to NodeJS");
+
+  // Send Message
+
+  socket.on("send-message", (roomid, user, msg) => {
+    console.log("Recieved: " + roomid + " " + user + " " + msg);
+    socket.emit("recieve-msg", [user, msg]);
+  });
 
   // create new room
   socket.on("create-room", (roomid) => {
