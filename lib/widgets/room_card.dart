@@ -15,11 +15,13 @@ class RoomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("Room card is updating, new snapshote : $snapshot");
     return Card(
       key: ValueKey(roomId),
       child: ListTile(
         onTap: () => Navigator.of(context).push(MaterialPageRoute(
             builder: (_) => RoomScreen(
+                  key: ValueKey(roomId),
                   snapshot: snapshot,
                   roomId: roomId,
                   leaveRoom: leaveRoom,

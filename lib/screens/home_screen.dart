@@ -79,18 +79,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     }
                     print("Snapshot: ${snapshot.data}");
                     return Expanded(
-                        child: ListView.builder(
-                      itemCount: joinedRooms.length,
-                      itemBuilder: (context, index) {
-                        return RoomCard(
-                          snapshot: snapshot.data.toString(),
-                          roomId: joinedRooms[index],
-                          leaveRoom: leaveRoom,
-                        );
-                      },
-                    ));
+                      child: ListView.builder(
+                        itemCount: joinedRooms.length,
+                        itemBuilder: (context, index) {
+                          return RoomCard(
+                            key: ValueKey(joinedRooms[index]),
+                            snapshot: snapshot.data.toString(),
+                            roomId: joinedRooms[index],
+                            leaveRoom: leaveRoom,
+                          );
+                        },
+                      ),
+                    );
                   },
-                )
+                ),
         ],
       ),
     );

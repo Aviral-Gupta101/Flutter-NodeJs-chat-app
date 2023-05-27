@@ -28,6 +28,7 @@ class _RoomScreenState extends State<RoomScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print("room screen build again");
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blueGrey[900],
