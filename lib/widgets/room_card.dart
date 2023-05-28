@@ -15,7 +15,6 @@ class RoomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("Room card is updating, new snapshote : $snapshot");
     return Card(
       key: ValueKey(roomId),
       child: ListTile(
@@ -27,7 +26,7 @@ class RoomCard extends StatelessWidget {
                   leaveRoom: leaveRoom,
                 ))),
         title: Text(
-          "Room ID: #${roomId}",
+          "Room ID: #$roomId",
           style: TextStyle(
             fontSize: 16.5,
             color: colorScheme.primary,

@@ -30,14 +30,12 @@ Socket connectAndListen() {
   //When an event recieved from server, data is added to the stream
   socket.on('connected', (data) {
     print(data);
-    streamSocket.addResponse(data);
+    // streamSocket.addResponse(data);
   });
 
   socket.on("recieve-msg", (data) {
-    print("here");
-    // print(data);
-    print(data[1]);
-    streamSocket.addResponse(data[1]);
+    print("recieve-msg: $data");
+    streamSocket.addResponse(data.toString());
   });
 
   socket.onDisconnect((_) => print("Disconnected"));

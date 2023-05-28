@@ -1,8 +1,11 @@
+import 'package:chat_app/providers/chat_message_provider.dart';
 import 'package:chat_app/resources/socket_methods.dart';
 import 'package:chat_app/util/colors.dart';
+import 'package:chat_app/widgets/chat_message.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class RoomScreen extends StatefulWidget {
+class RoomScreen extends ConsumerStatefulWidget {
   final String snapshot;
   final String roomId;
   final Function(String) leaveRoom;
@@ -14,11 +17,19 @@ class RoomScreen extends StatefulWidget {
   });
 
   @override
-  State<RoomScreen> createState() => _RoomScreenState();
+  ConsumerState<RoomScreen> createState() => _RoomScreenState();
 }
 
-class _RoomScreenState extends State<RoomScreen> {
+class _RoomScreenState extends ConsumerState<RoomScreen> {
   final TextEditingController _controller = TextEditingController();
+
+  void sendMessage() {
+    SocketMethods().sendMessage(widget.roomId, _controller.text);
+    print("My room id: ${widget.roomId}");
+    // ref.read(chatMessageProvider.notifier).addMessage(
+    //     [widget.roomId, SocketMethods.socket!.id.toString(), _controller.text]);
+    _controller.clear();
+  }
 
   @override
   void dispose() {
@@ -28,7 +39,8 @@ class _RoomScreenState extends State<RoomScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("room screen build again");
+    final chatMessage = ref.watch(chatMessageProvider);
+    // print("room screen build again");
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blueGrey[900],
@@ -46,13 +58,20 @@ class _RoomScreenState extends State<RoomScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Center(
-            child: Text(widget.snapshot),
-          ),
-        ],
-      ),
+      body: ListView.builder(
+          itemCount: chatMessage[widget.roomId].length,
+          itemBuilder: (context, index) {
+            var data = chatMessage[widget.roomId][index];
+            // print(data[0]);
+            if (data[0] == SocketMethods.socket!.id.toString()) {
+              return ChatMessage(data[1]);
+            } else {
+              return ChatMessage(
+                data[1],
+                left: true,
+              );
+            }
+          }),
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: EdgeInsets.only(
@@ -70,11 +89,7 @@ class _RoomScreenState extends State<RoomScreen> {
                 border: InputBorder.none,
                 hintText: "Enter a message...",
                 suffixIcon: IconButton(
-                  onPressed: () {
-                    SocketMethods()
-                        .sendMessage(widget.roomId, _controller.text);
-                    _controller.clear();
-                  },
+                  onPressed: sendMessage,
                   icon: const Icon(Icons.send),
                 ),
               ),
