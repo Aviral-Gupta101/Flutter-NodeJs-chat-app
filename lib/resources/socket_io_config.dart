@@ -30,7 +30,7 @@ Socket connectAndListen() {
   //When an event recieved from server, data is added to the stream
   socket.on('connected', (data) {
     print(data);
-    // streamSocket.addResponse(data);
+    streamSocket.addResponse(data);
   });
 
   socket.on("recieve-msg", (data) {

@@ -11,6 +11,9 @@ class ChatMessageNotifier extends StateNotifier<Map<String, dynamic>> {
   void deleteRoom(String roomId) {
     var temp = state;
     temp.removeWhere((key, value) => key == roomId);
+    print(state);
+    print("\n");
+    print(temp);
     state = {...temp, roomId: []};
   }
 

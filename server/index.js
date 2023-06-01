@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
   console.log('a user connected to NodeJs');
-  socket.emit("connected", "Flutter device connected");
+  socket.emit("connected", "connected");
 
   // Send Message
 

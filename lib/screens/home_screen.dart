@@ -30,12 +30,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       id = id + Random().nextInt(9).toString();
     }
     setState(() {
-      // _joinRoomController.text = id;
-      id = _joinRoomController.text;
+      _joinRoomController.text = id;
+      // id = _joinRoomController.text;
       joinedRooms.add(id);
     });
     socket.emit("create-room", id);
     ref.read(chatMessageProvider.notifier).addRoom(id);
+  }
+
+  void joinRoom() {
+    if (_joinRoomController.text.trim().length < 5) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Room ID should be atleast 5 character long"),
+        ),
+      );
+      return;
+    }
+    if (joinedRooms.contains(_joinRoomController.text.trim()) == false) {
+      setState(() {
+        joinedRooms.add(_joinRoomController.text.trim());
+      });
+      socket.emit("create-room", _joinRoomController.text);
+      ref.read(chatMessageProvider.notifier).addRoom(_joinRoomController.text);
+    }
   }
 
   void leaveRoom(String id) {
@@ -57,8 +76,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     print("build");
     final msg = ref.read(chatMessageProvider.notifier);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (room != null && userMsg != null && user != null)
+      if (room != null && userMsg != null && user != null) {
         msg.addMessage([room!, user!, userMsg!]);
+      }
     });
     return Scaffold(
       appBar: AppBar(
@@ -72,48 +92,63 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       body: Column(
         children: [
-          CustomTextField(_joinRoomController),
-          joinedRooms.isEmpty && !isRoom
-              ? const Center(
-                  child: Text('No join room'),
-                )
-              : StreamBuilder(
-                  stream: streamSocket.getResponse,
-                  builder: (context, AsyncSnapshot<dynamic> snapshot) {
-                    if (snapshot.hasError) {
-                      return const Center(
-                        child: Text("Some error occured in stream"),
-                      );
-                    }
+          CustomTextField(_joinRoomController, joinRoom),
+          StreamBuilder(
+            stream: streamSocket.getResponse,
+            builder: (context, AsyncSnapshot<dynamic> snapshot) {
+              if (snapshot.hasError) {
+                return const Center(
+                  child: Text("Some error occured in stream"),
+                );
+              }
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("Wating for socket connection ..."),
+                        SizedBox(height: 50),
+                        CircularProgressIndicator(
+                          color: Colors.blue,
+                        )
+                      ],
+                    ),
+                  ),
+                );
+              }
 
-                    if (snapshot.data != null) {
-                      print("Snapshot recieved : ${snapshot.data}");
-                      List<String> list = (snapshot.data as String).split(',');
-                      room = list[0].substring(1);
-                      user = list[1].substring(1);
-                      userMsg = list[2].substring(1, list[2].length - 1);
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (room != null && userMsg != null && user != null) {
-                          msg.addMessage([room!, user!, userMsg!]);
-                        }
-                      });
-                    }
+              if (snapshot.data != null && snapshot.data != "connected") {
+                print("Snapshot recieved : ${snapshot.data}");
+                List<String> list = (snapshot.data as String).split(',');
+                room = list[0].substring(1);
+                user = list[1].substring(1);
+                userMsg = list[2].substring(1, list[2].length - 1);
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (room != null && userMsg != null && user != null) {
+                    msg.addMessage([room!, user!, userMsg!]);
+                  }
+                });
 
-                    return Expanded(
-                      child: ListView.builder(
-                        itemCount: joinedRooms.length,
-                        itemBuilder: (context, index) {
-                          return RoomCard(
-                            key: ValueKey(joinedRooms[index]),
-                            snapshot: snapshot.data.toString(),
-                            roomId: joinedRooms[index],
-                            leaveRoom: leaveRoom,
-                          );
-                        },
-                      ),
+                // clear the snapshot data so that does not affect fetch the same data
+                // if same room is left and joined again
+              }
+
+              return Expanded(
+                child: ListView.builder(
+                  itemCount: joinedRooms.length,
+                  itemBuilder: (context, index) {
+                    return RoomCard(
+                      key: ValueKey(joinedRooms[index]),
+                      snapshot: snapshot.data.toString(),
+                      roomId: joinedRooms[index],
+                      leaveRoom: leaveRoom,
                     );
                   },
                 ),
+              );
+            },
+          ),
         ],
       ),
     );

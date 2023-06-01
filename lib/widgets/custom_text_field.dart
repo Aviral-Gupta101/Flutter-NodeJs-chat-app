@@ -5,8 +5,9 @@ import '../util/colors.dart';
 
 class CustomTextField extends StatefulWidget {
   final TextEditingController controller;
+  final VoidCallback joinRoom;
   // final bool copy;
-  const CustomTextField(this.controller, {super.key});
+  const CustomTextField(this.controller, this.joinRoom, {super.key});
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -64,6 +65,14 @@ class _CustomTextFieldState extends State<CustomTextField> {
                       size: 30,
                     )
                   : const Icon(Icons.copy),
+            ),
+            TextButton(
+              onPressed: widget.joinRoom,
+              // icon: const Icon(Icons.),
+              child: const Text(
+                "Join",
+                style: TextStyle(fontSize: 17),
+              ),
             ),
           ],
         ),
