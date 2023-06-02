@@ -21,12 +21,9 @@ io.on('connection', (socket) => {
 
   socket.on("send-message", (roomid, user, msg) => {
     console.log("Recieved: " + roomid + " " + user + " " + msg);
-    io.emit("recieve-msg", [roomid, user, msg]);
+    // io.emit("recieve-msg", [roomid, user, msg]);
+    io.to(roomid).emit("recieve-msg", [roomid, user, msg]);
   });
-
-  // socket.on("any", (data)=> {
-  //   socket.emit("any")
-  // });
 
   // create new room
   socket.on("create-room", (roomid) => {

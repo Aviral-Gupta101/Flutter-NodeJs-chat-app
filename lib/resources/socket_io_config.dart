@@ -1,3 +1,5 @@
+// ignore_for_file: library_prefixes
+
 import 'dart:async';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -23,22 +25,22 @@ Socket connectAndListen() {
       OptionBuilder().setTransports(['websocket']).build());
 
   socket.onConnect((_) {
-    print('connected');
+    // print('connected');
     socket.emit('msg', 'test');
   });
 
   //When an event recieved from server, data is added to the stream
   socket.on('connected', (data) {
-    print(data);
+    // print(data);
     streamSocket.addResponse(data);
   });
 
   socket.on("recieve-msg", (data) {
-    print("recieve-msg: $data");
+    // print("recieve-msg: $data");
     streamSocket.addResponse(data.toString());
   });
 
-  socket.onDisconnect((_) => print("Disconnected"));
+  // socket.onDisconnect((_) => print("Disconnected"));
   return socket;
 }
 

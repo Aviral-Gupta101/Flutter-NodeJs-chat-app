@@ -6,11 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class RoomScreen extends ConsumerStatefulWidget {
-  final String snapshot;
   final String roomId;
   final Function(String) leaveRoom;
   const RoomScreen({
-    required this.snapshot,
     required this.roomId,
     required this.leaveRoom,
     super.key,
@@ -22,12 +20,18 @@ class RoomScreen extends ConsumerStatefulWidget {
 
 class _RoomScreenState extends ConsumerState<RoomScreen> {
   final TextEditingController _controller = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    });
+  }
 
   void sendMessage() {
     SocketMethods().sendMessage(widget.roomId, _controller.text);
-    print("My room id: ${widget.roomId}");
-    // ref.read(chatMessageProvider.notifier).addMessage(
-    //     [widget.roomId, SocketMethods.socket!.id.toString(), _controller.text]);
     _controller.clear();
   }
 
@@ -35,6 +39,7 @@ class _RoomScreenState extends ConsumerState<RoomScreen> {
   void dispose() {
     super.dispose();
     _controller.dispose();
+    _scrollController.dispose();
   }
 
   @override
@@ -59,14 +64,16 @@ class _RoomScreenState extends ConsumerState<RoomScreen> {
         ],
       ),
       body: ListView.builder(
+          controller: _scrollController,
           itemCount: chatMessage[widget.roomId].length,
           itemBuilder: (context, index) {
             var data = chatMessage[widget.roomId][index];
             // print(data[0]);
             if (data[0] == SocketMethods.socket!.id.toString()) {
-              return ChatMessage(data[1]);
+              return ChatMessage(data[0], data[1]);
             } else {
               return ChatMessage(
+                data[0],
                 data[1],
                 left: true,
               );
